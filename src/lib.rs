@@ -6,18 +6,18 @@
 //! There are only very few interfaces implemented till now. Try this example for now:
 //!
 //! ```rust
-//! extern crate zmq;
+//! extern crate zeromq;
 //!
 //! fn main() {
-//!     let ctx = zmq::Context::new();
+//!     let ctx = zeromq::Context::new();
 //!
-//!     let mut req = ctx.socket(zmq::SocketType::REQ);
+//!     let mut req = ctx.socket(zeromq::SocketType::REQ);
 //!     req.connect("tcp://127.0.0.1:12347").unwrap();
 //!
-//!     let mut rep = ctx.socket(zmq::SocketType::REP);
+//!     let mut rep = ctx.socket(zeromq::SocketType::REP);
 //!     rep.bind("tcp://127.0.0.1:12347").unwrap();
 //!
-//!     let mut msg = box zmq::Msg::new(4);
+//!     let mut msg = box zeromq::Msg::new(4);
 //!     msg.data.push_all([65u8, 66u8, 67u8, 68u8].as_slice());
 //!
 //!     req.msg_send(msg).unwrap();
@@ -27,14 +27,14 @@
 //!
 //!  [ØMQ]: http://zeromq.org/
 
-#![crate_name = "zmq"]
+#![crate_name = "zeromq"]
 #![unstable]
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
-#![comment = "native stack of ØMQ in Rust"]
-#![license = "MPLv2"]
-#![feature(phase)]
-#[phase(plugin, link)] extern crate log;
+#![feature(box_syntax)]
+#![feature(int_uint)]
+#[macro_use] extern crate log;
+
 
 pub use ctx::Context;
 pub use consts::SocketType;
@@ -45,6 +45,8 @@ pub use rep::RepSocket;
 pub use req::ReqSocket;
 pub use result::{ZmqResult, ZmqError};
 pub use socket::ZmqSocket;
+
+
 
 mod ctx;
 mod consts;
@@ -66,6 +68,8 @@ mod v2_protocol;
 
 #[cfg(test)]
 mod test {
+    use std::thread::Thread;
+
     #[test]
     fn test_socket_type() {
         assert_eq!(super::SocketType::REQ as int, 3);
@@ -126,7 +130,7 @@ mod test {
         let c = super::Context::new();
         let req = c.socket(super::SocketType::REQ);
 
-        spawn(proc() {
+        Thread::spawn(move || {
             let mut req = req;
             assert!(req.connect("inproc://#1").is_ok());
 

@@ -7,20 +7,21 @@ pub enum SocketType {
     //PUB = 1,
     //SUB = 2,
 
-    /// A socket of type `zmq::REQ` is used by a *client* to send requests to and receive replies
-    /// from a *service*. This socket type allows only an alternating sequence of `send(request)`
-    /// and subsequent `recv(reply)` calls. Each request sent is round-robined among all `services`,
-    /// and each reply received is matched with the last issued request.
+    /// A socket of type `zeromq::REQ` is used by a *client* to send requests to and receive
+    /// replies from a *service*. This socket type allows only an alternating sequence of
+    /// `send(request)` and subsequent `recv(reply)` calls. Each request sent is round-robined
+    /// among all `services`, and each reply received is matched with the last issued request.
     ///
     /// If no services are available, then any send operation on the socket shall block until at
-    /// least one service becomes available. The `zmq::REQ` socket shall not discard messages.
+    /// least one service becomes available. The `zeromq::REQ` socket shall not discard messages.
     REQ = 3,
 
-    /// A socket of type `zmq::REP` is used by a *service* to receive requests from and send replies
-    /// to a *client*. This socket type allows only an alternating sequence of `recv(request)` and
-    /// subsequent `send(reply)` calls. Each request received is fair-queued from among all
-    /// *clients*, and each reply sent is routed to the *client* that issued the last request.
-    /// If the original requester does not exist any more the reply is silently discarded.
+    /// A socket of type `zeromq::REP` is used by a *service* to receive requests from and send
+    /// replies to a *client*. This socket type allows only an alternating sequence of
+    /// `recv(request)` and subsequent `send(reply)` calls. Each request received is fair-queued
+    /// from among all *clients*, and each reply sent is routed to the *client* that issued the
+    /// last request. If the original requester does not exist any more the reply is silently
+    /// discarded.
     REP = 4,
 
     //DEALER = 5,
@@ -32,17 +33,21 @@ pub enum SocketType {
     //STREAM = 11,
 }
 
+impl Copy for SocketType {}
+
 
 /// Defines different options for a ØMQ socket.
 ///
 /// Option value can be retrieved from a socket by
 /// [`getsockopt`](trait.ZmqSocket.html#tymethod.getsockopt).
 pub enum SocketOption {
-    /// *(readonly)* The `zmq::TYPE` option shall retrieve the socket type for the specified
+    /// *(readonly)* The `zeromq::TYPE` option shall retrieve the socket type for the specified
     /// *socket*. The socket type is specified at socket creation time and cannot be modified
     /// afterwards.
     TYPE = 16,
 }
+
+impl Copy for SocketOption {}
 
 
 /// A number random enough not to collide with different errno ranges on
@@ -50,7 +55,7 @@ pub enum SocketOption {
 const HAUSNUMERO: int = 156384712;
 
 /// ØMQ errors.
-#[deriving(PartialEq, Show)]
+#[derive(PartialEq, Debug)]
 pub enum ErrorCode {
     /// Invalid argument
     EINVAL = libc::EINVAL as int,
@@ -86,3 +91,6 @@ pub enum ErrorCode {
     /// Unknown I/O error
     EIOERROR = HAUSNUMERO - 1,
 }
+
+impl Copy for ErrorCode {}
+
